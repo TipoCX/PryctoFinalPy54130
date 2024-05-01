@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        LogIn
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-primary">Envíar</button>
+                        </form>
+                    </div>
+                    <a href="{% url "home" %}">Crear Usuario</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

@@ -5,9 +5,9 @@ from django.contrib.auth import get_user_model
 class Post(models.Model):
     titulo = models.CharField(max_length=100, blank=False, null=False)
     subtitulo = models.CharField(max_length=200, blank=True, null=True)
-    contenido = models.TextField(max_length=200, blank=False, null=False)
+    contenido = models.TextField(max_length=2000, blank=False, null=False)
     time = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey(get_user_model())
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.id} {self.title}'
+        return f'{self.id} {self.titulo}'
