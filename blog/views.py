@@ -5,6 +5,7 @@ from django.http import HttpResponse
 # Imports de modelos
 from .models import *
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 # Imports de Forms
 from .forms import *
@@ -93,3 +94,31 @@ def postView(request, postid):
         else:
             post.likes.remove(request.user)
             return render(request, 'post.html', context)
+
+
+@login_required
+def profileView(request, pageUserId):
+    profile = User.objects.filter(id=pageUserId)[0]
+    if Avatar.objects.filter(user=pageUserId).exists():
+        avatar = Avatar.objects.filter(user=pageUserId)[0]
+        return render(request, 'profile.html', {'profile': profile, 'avatar': avatar})
+    else:
+        return render(request, 'profile.html', {'profile': profile})
+
+
+@login_required
+def avatarView(request):
+    if request.method == "GET":
+        contexto = {"form": AvatarCreateForm()}
+    else:
+        form = AvatarCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            image = form.cleaned_data["image"]
+            avatar_existente = Avatar.objects.filter(user=request.user)
+            avatar_existente.delete()
+            nuevo_avatar = Avatar(image=image, user=request.user)
+            nuevo_avatar.save()
+            return redirect("home")
+        else:
+            contexto = {"form": form}
+    return render(request, "add_avatar.html", context=contexto)

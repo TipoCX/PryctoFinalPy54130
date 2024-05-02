@@ -25,5 +25,6 @@ urlpatterns = [
     path('post/<postid>', postView, name='post'),
     path('register', registerView, name='register'),
     path('create_post', createPostView, name='create-post'),
-
+    path('profile/<pageUserId>', profileView, name='profile-view'),
+    path('add_avatar', avatarView, name='add-avatar')
 ]

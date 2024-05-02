@@ -12,3 +12,7 @@ class Post(models.Model):
 
     def __str__(self):
         return f'{self.titulo}'
+
+class Avatar(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    image = models.ImageField()

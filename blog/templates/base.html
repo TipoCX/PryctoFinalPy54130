@@ -29,7 +29,9 @@
             <li class="nav-item">
             <a class="nav-link" href="{% url "create-post" %}">Create Post</a>
             </li>
-            <p class='nav-link username-nav'>{{user.username}}</p>
+            <li class="nav-item">
+            <a class="nav-link" href="{% url "profile-view" pageUserId=user.id %}">{{ user.username }}</a>
+            </li>
             <li class="nav-item">
             <a class="nav-link" href="{% url "logout" %}">Logout</a>
             </li>
