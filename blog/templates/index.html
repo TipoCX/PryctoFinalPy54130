@@ -2,6 +2,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
+
 {% if posts %}
 <div class='index-container'>
     <div class='search-container'>
@@ -12,7 +13,7 @@
     </div>
 <div class="posts-container">
 {% for post in posts %}
-<a href='{% url "post" postid=post.id %}' class="card post">
+<a class="card post" href='{% url "post" postid=post.id %}'>
     <p>{{ post.author }}</p>
     <h2>{{post.titulo}}</h2>
     <h4>{{post.subtitulo}}</h4>

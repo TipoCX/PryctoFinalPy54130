@@ -23,5 +23,7 @@ urlpatterns = [
     path('login', loginView, name='login'),
     path('logout', logoutView, name='logout'),
     path('post/<postid>', postView, name='post'),
+    path('register', registerView, name='register'),
+    path('create_post', createPostView, name='create-post'),
 
 ]

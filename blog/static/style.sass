@@ -31,8 +31,27 @@ body
     top: 0
     z-index: 1
 
+.post-label
+    color: $text-color
+
+.user-likes
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    .likes
+        display: flex
+        flex-direction: row
+
+.like-button
+    border-radius: 1000px
+    border: 0px
+
+.navbar-brand
+    max-width: 70px
+
 .navbar-nav
     width: 100%
+    min-height: 40px
 
 .nav-item
     &:last-of-type
@@ -69,10 +88,10 @@ body
         color: $text-color
     p
         color: $text-color
-
 a
     text-decoration: none
     transition: all 100ms ease-in-out
+    width: 100%
     &:hover
         scale: 101%
 
@@ -86,3 +105,19 @@ a
     color: $text-color
     label
         margin-bottom: 5px
+
+.card-body
+    background-color: #4c4c4c
+    label
+        color: $text-color
+    textarea
+        background-color: #666666
+    input
+        background-color: #666666
+
+.username-nav
+    margin: 0
+    pointer-events: none
+    &:hover
+        background-color: transparent
+        color: $text-color

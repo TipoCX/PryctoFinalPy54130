@@ -7,7 +7,8 @@ class Post(models.Model):
     subtitulo = models.CharField(max_length=200, blank=True, null=True)
     contenido = models.TextField(max_length=2000, blank=False, null=False)
     time = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='author')
+    likes = models.ManyToManyField(get_user_model(), related_name='likes')
 
     def __str__(self):
-        return f'{self.id} {self.titulo}'
+        return f'{self.titulo}'

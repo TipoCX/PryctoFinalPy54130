@@ -30,8 +30,32 @@ body::-webkit-scrollbar-track {
   z-index: 1;
 }
 
+.post-label {
+  color: #b4b4b4;
+}
+
+.user-likes {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.user-likes .likes {
+  display: flex;
+  flex-direction: row;
+}
+
+.like-button {
+  border-radius: 1000px;
+  border: 0px;
+}
+
+.navbar-brand {
+  max-width: 70px;
+}
+
 .navbar-nav {
   width: 100%;
+  min-height: 40px;
 }
 
 .nav-item:last-of-type {
@@ -81,6 +105,7 @@ body::-webkit-scrollbar-track {
 a {
   text-decoration: none;
   transition: all 100ms ease-in-out;
+  width: 100%;
 }
 a:hover {
   scale: 101%;
@@ -97,4 +122,26 @@ a:hover {
 }
 .search-container label {
   margin-bottom: 5px;
+}
+
+.card-body {
+  background-color: #4c4c4c;
+}
+.card-body label {
+  color: #b4b4b4;
+}
+.card-body textarea {
+  background-color: #666666;
+}
+.card-body input {
+  background-color: #666666;
+}
+
+.username-nav {
+  margin: 0;
+  pointer-events: none;
+}
+.username-nav:hover {
+  background-color: transparent;
+  color: #b4b4b4;
 }/*# sourceMappingURL=style.css.map */

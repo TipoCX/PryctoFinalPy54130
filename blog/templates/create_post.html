@@ -1,25 +1,22 @@
 {% extends 'base.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Create Post{% endblock %}
 {% block content %}
 <section class="py-5">
     <div class="container">
+        <h2 class="mb-4 post-label">Post</h2>
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="card shadow-sm">
-                    <div class="card-header">
-                        LogIn
-                    </div>
                     <div class="card-body">
-                        <form method="POST" action="{% url 'login' %}">
+                        <form method="POST" action="{% url 'create-post' %}">
                             {% csrf_token %}
                             {{ form.as_p }}
                             <button type="submit" class="btn btn-primary">Envíar</button>
                         </form>
                     </div>
-                    <a href="{% url "register" %}">Crear Usuario</a>
                 </div>
             </div>
         </div>
     </div>
 </section>
-{% endblock content %}
+{% endblock %}

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'bootstrap.css' %}">
     <script src="{% static 'bootstrap.bundle.js' %}"></script>
+    <script src="https://kit.fontawesome.com/cf1d4f5cef.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <title>{%block title%}aaa{% endblock title %}</title>
 </head>
@@ -25,6 +26,10 @@
             <li class="nav-item">
             <a class="nav-link" href="{% url "admin:index" %}">Admin</a>
             </li>
+            <li class="nav-item">
+            <a class="nav-link" href="{% url "create-post" %}">Create Post</a>
+            </li>
+            <p class='nav-link username-nav'>{{user.username}}</p>
             <li class="nav-item">
             <a class="nav-link" href="{% url "logout" %}">Logout</a>
             </li>
