@@ -4,6 +4,10 @@ from django.http import HttpResponse
 
 # Imports de modelos
 from .models import *
+from django.db.models import Q
+
+# Imports de Forms
+from .forms import *
 
 # Imports relcaionados con Cuentas de usuario
 from django.contrib.auth import logout
@@ -14,9 +18,18 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def indexView(request):
-    posts: list = Post.objects.all()
-    context = {'posts': posts}
-    return render(request, "index.html", context)
+    form = SearchForm()
+    if request.method == 'GET':
+        posts: list = Post.objects.all()
+        context = {'posts': posts, 'form':form}
+        return render(request, "index.html", context)
+    elif request.method == 'POST':
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            search = form.cleaned_data['search']
+            posts: list = Post.objects.filter(Q(titulo__contains = search) | Q(subtitulo__contains = search) | Q(contenido__contains = search) | Q(author__username__contains = search))
+            context = {'posts': posts, 'form':form}
+            return render(request, "index.html", context)
 
 
 def loginView(request):

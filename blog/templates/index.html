@@ -3,6 +3,14 @@
 {% block content %}
 
 {% if posts %}
+<div class='index-container'>
+    <div class='search-container'>
+        <form action="{% url "home" %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+        </form>
+    </div>
+<div class="posts-container">
 {% for post in posts %}
 <a href='{% url "post" postid=post.id %}' class="card post">
     <p>{{ post.author }}</p>
@@ -11,10 +19,11 @@
     <p>{% for letter in post.contenido%}{% if  forloop.counter0  <= 300 %}{{letter}}{% else %}{% if  forloop.counter0 == 300 or  forloop.counter0  == 301 or  forloop.counter0 == 302 %}.{% endif %}{% endif %}{% endfor %}</p>
 </a>
 {% endfor %}
+</div>
+</div>
 {% else %}
 
-<h2>aun no se a hecho ningun post.
-    Se el Primero ;)
+<h2>No se a encontrado Ningun post
 </h2>
 {% endif %}
 
