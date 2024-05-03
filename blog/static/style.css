@@ -230,4 +230,12 @@ a:hover {
   border-radius: 10px;
   padding: 50px;
   color: #b4b4b4;
+}
+
+.aboutme-container {
+  margin: 30px;
+  padding: 40px;
+  background-color: #506a77;
+  color: #b4b4b4;
+  border-radius: 10px;
 }/*# sourceMappingURL=style.css.map */

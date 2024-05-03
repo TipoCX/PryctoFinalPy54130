@@ -32,5 +32,6 @@ urlpatterns = [
     path('profile/<pageUserId>', profileView, name='profile-view'),
     path('messages', messageHubView, name='message-hub'),
     path('dm/<contact>', dmView, name='dm'),
-    path('add_avatar', avatarView, name='add-avatar')
+    path('add_avatar', avatarView, name='add-avatar'),
+    path('about_me', aboutMeView, name='about-me')
 ]

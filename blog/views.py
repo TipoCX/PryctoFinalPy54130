@@ -197,3 +197,6 @@ def deleteUserView(request):
         request.user.delete()
         request.user.save()
         return redirect('logout')
+
+def aboutMeView(request):
+    return render(request, 'about_me.html')
