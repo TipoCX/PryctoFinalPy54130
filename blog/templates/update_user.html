@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow-sm">
+                    <a href="{% url "delete-user" %}">DELETE USER</a>
+                    <div class="card-header">
+                        Update User
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{% url 'update-user' %}">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-primary">Envíar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

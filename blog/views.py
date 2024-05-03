@@ -39,7 +39,7 @@ def loginView(request):
         context = {'form': form}
     elif request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
-
+        context = {'form': form}
         if form.is_valid():
             user = form.user_cache
             context = {}
@@ -146,6 +146,15 @@ def updatePostView(request, postid):
     return redirect('home')
 
 @login_required
+def updateUserView(request):
+    form = UserCreationForm(request.POST or None, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return redirect('profile-view', pageUserId=request.user.id)
+    context = {'form': form}
+    return render(request, 'update_user.html', context)
+
+@login_required
 def deletePostView(request, postid):
     if Post.objects.filter(id=postid).exists():
         post = Post.objects.filter(id=postid)[0]
@@ -179,3 +188,12 @@ def dmView(request, contact):
                 return redirect('dm', contact.id)
     else:
         return redirect('message-hub')
+
+@login_required
+def deleteUserView(request):
+    if request.method == 'GET':
+        return render(request, 'alerta.html')
+    elif request.method == 'POST':
+        request.user.delete()
+        request.user.save()
+        return redirect('logout')

@@ -4,6 +4,7 @@
 {% load static %}
 <div class="profile-container">
 {% if user == profile %}
+    <a href="{% url "update-user" %}">Update User</a>
 {% if avatar %}
    <a href='{% url "add-avatar" %}' class="imgAvatar"><img width='300' height='300' src="{{ avatar.image.url }}"><span class="tooltiptext">Edit Profile</span></a>
 {% else %}

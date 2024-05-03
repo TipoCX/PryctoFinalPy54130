@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<form class='alert-form' action="{% url "delete-user" %}" method="post">
+    {% csrf_token %}
+    <label>ALERTA: ESTAS A PUNTO DE BORRAR UN USUARIO</label>
+    <br>
+    <label>se borraran los mensajes que hayas enviado y los posts que hayas creado</label>
+    <br>
+    <label>¿ESTAS SEGURO DE LO QUE ESTAS HACIENDO?</label>
+    <br>
+    <button class='alertBtn' type="submit">BORRAR</button>
+    <a href="{% url "profile-view" pageUserId=user.id %}">Cancelar</a>
+</form>
+{% endblock content %}

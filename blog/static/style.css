@@ -218,4 +218,16 @@ a:hover {
   max-width: -moz-fit-content;
   max-width: fit-content;
   margin-block: 1px;
+}
+
+.alertBtn {
+  background-color: red;
+}
+
+.alert-form {
+  background-color: #784a4a;
+  margin: 30px;
+  border-radius: 10px;
+  padding: 50px;
+  color: #b4b4b4;
 }/*# sourceMappingURL=style.css.map */
