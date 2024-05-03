@@ -86,6 +86,9 @@ body::-webkit-scrollbar-track {
   box-shadow: 2px 2px 5px;
   min-width: 600px;
 }
+.post a:hover .tooltiptext {
+  visibility: visible;
+}
 .post h1 {
   color: #b4b4b4;
 }
@@ -128,12 +131,16 @@ a:hover {
   background-color: #4c4c4c;
 }
 .card-body label {
+  display: flex;
   color: #b4b4b4;
+  align-content: center;
 }
 .card-body textarea {
+  border-radius: 10px;
   background-color: #666666;
 }
 .card-body input {
+  border-radius: 10px;
   background-color: #666666;
 }
 
@@ -144,4 +151,71 @@ a:hover {
 .username-nav:hover {
   background-color: transparent;
   color: #b4b4b4;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+  color: white;
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.profile-container .imgAvatar {
+  display: flex;
+  justify-content: center;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.profile-container .imgAvatar:hover .tooltiptext {
+  visibility: visible;
+}
+.profile-container h2 {
+  color: #b4b4b4;
+}
+
+.dm-container .dm-messages {
+  max-height: 60vh;
+  overflow: scroll;
+  overflow-inline: hidden;
+}
+.dm-container label {
+  padding: 4px;
+  background-color: #4c4c4c;
+}
+.dm-container .message {
+  padding: 2px;
+  border-radius: 5px;
+  background-color: #4c4c4c;
+  margin-inline: 10px;
+  margin-block: 6px;
+  padding-block: 5px;
+  padding-inline: 20px;
+}
+.dm-container .sended {
+  display: flex;
+  align-items: end;
+  flex-direction: column;
+}
+.dm-container .sended h4 {
+  max-width: -moz-fit-content;
+  max-width: fit-content;
+  padding: 0px;
+  margin-block: 1px;
+}
+.dm-container .sended p {
+  padding: 0px;
+  max-width: -moz-fit-content;
+  max-width: fit-content;
+  margin-block: 1px;
 }/*# sourceMappingURL=style.css.map */

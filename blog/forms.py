@@ -1,3 +1,4 @@
+from cProfile import label
 from django import forms
 from .models import *
 
@@ -6,10 +7,20 @@ class SearchForm(forms.Form):
     search = forms.CharField()
 
 
-class CreatePostForm(forms.Form):
-    titulo = forms.CharField(max_length=100)
-    subtitulo = forms.CharField(max_length=200)
-    contenido = forms.CharField(max_length=2000, strip=False, widget=forms.Textarea())
+class CreatePostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['titulo', 'subtitulo', 'contenido']
+        labels = {
+            'titulo': 'Titulo Del Post',
+            'subtitulo': 'Subtitulo Del Post',
+            'contenido': 'Contenido Del Post'
+        }
+
+class SendMessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['content']
 
 class AvatarCreateForm(forms.ModelForm):
     class Meta:

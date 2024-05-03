@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+
+
+{% if users %}
+<div class='index-container'>
+<div class="posts-container">
+{% for userdm in users %}
+<a class="card user-dm" href='{% url "dm" contact=userdm.id %}'>
+    <p>{{ userdm.username }}</p>
+</a>
+{% endfor %}
+</div>
+</div>
+{% else %}
+
+<h2>No se a encontrado Ningun post
+</h2>
+{% endif %}
+
+{% endblock content %}

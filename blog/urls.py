@@ -25,6 +25,10 @@ urlpatterns = [
     path('post/<postid>', postView, name='post'),
     path('register', registerView, name='register'),
     path('create_post', createPostView, name='create-post'),
+    path('update_post/<postid>', updatePostView, name='update-post'),
+    path('delete_post/<postid>', deletePostView, name='delete-post'),
     path('profile/<pageUserId>', profileView, name='profile-view'),
+    path('messages', messageHubView, name='message-hub'),
+    path('dm/<contact>', dmView, name='dm'),
     path('add_avatar', avatarView, name='add-avatar')
 ]

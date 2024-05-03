@@ -13,6 +13,14 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.titulo}'
 
+class Message(models.Model):
+    sender = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='sender')
+    reciver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='reciver')
+    time = models.DateTimeField(default=timezone.now)
+    content = models.CharField(max_length=500, blank=False, null=False)
+
+
+
 class Avatar(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     image = models.ImageField()

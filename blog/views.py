@@ -86,7 +86,12 @@ def postView(request, postid):
     likes = post.likes.all()
     context = {'post': post, 'likes': likes}
     if request.method == 'GET':
-        return render(request, 'post.html', context)
+        if Avatar.objects.filter(user=post.author).exists():
+            avatar = Avatar.objects.filter(user=post.author)[0]
+            context = {'post': post, 'likes': likes, 'avatar': avatar}
+            return render(request, 'post.html', context)
+        else:
+            return render(request, 'post.html', context)
     elif request.method == 'POST':
         if request.user not in post.likes.all():
             post.likes.add(request.user)
@@ -99,11 +104,12 @@ def postView(request, postid):
 @login_required
 def profileView(request, pageUserId):
     profile = User.objects.filter(id=pageUserId)[0]
+    posts = Post.objects.filter(author=pageUserId).all
     if Avatar.objects.filter(user=pageUserId).exists():
         avatar = Avatar.objects.filter(user=pageUserId)[0]
-        return render(request, 'profile.html', {'profile': profile, 'avatar': avatar})
+        return render(request, 'profile.html', {'profile': profile, 'avatar': avatar, 'posts': posts})
     else:
-        return render(request, 'profile.html', {'profile': profile})
+        return render(request, 'profile.html', {'profile': profile, 'posts': posts})
 
 
 @login_required
@@ -122,3 +128,54 @@ def avatarView(request):
         else:
             contexto = {"form": form}
     return render(request, "add_avatar.html", context=contexto)
+
+@login_required
+def updatePostView(request, postid):
+    if Post.objects.filter(id=postid).exists():
+        post = Post.objects.filter(id=postid)[0]
+        if request.user == post.author:
+            form = CreatePostForm(request.POST or None, instance=post)
+            if form.is_valid():
+                post.titulo = form.cleaned_data['titulo']
+                post.subtitulo = form.cleaned_data['subtitulo']
+                post.contenido = form.cleaned_data['contenido']
+                post.save()
+                return redirect('post', postid=post.id)
+            context = {'form': form, 'post': post}
+            return render(request, 'update_post.html', context)
+    return redirect('home')
+
+@login_required
+def deletePostView(request, postid):
+    if Post.objects.filter(id=postid).exists():
+        post = Post.objects.filter(id=postid)[0]
+        if request.user == post.author:
+            post.delete()
+    return redirect('home')
+
+@login_required
+def messageHubView(request):
+    context = {}
+    users = User.objects.all()
+    context['users'] = users
+    return render(request, 'mensajeria.html', context)
+
+@login_required
+def dmView(request, contact):
+    context = {'form': SendMessageForm()}
+    if User.objects.filter(id=contact).exists():
+        contact = User.objects.filter(id=contact)[0]
+        if request.method == 'GET':
+            messages = Message.objects.filter((Q(sender=request.user)&Q(reciver=contact))|(Q(sender=contact)&Q(reciver=request.user))).order_by('time').all()
+            context['contact'] = contact
+            context['messages'] = messages
+            return render(request, 'mensajeria-dm.html', context)
+        elif request.method == 'POST':
+            form = SendMessageForm(request.POST)
+            if form.is_valid():
+                content = form.cleaned_data['content']
+                message = Message(content=content, sender=request.user, reciver=contact)
+                message.save()
+                return redirect('dm', contact.id)
+    else:
+        return redirect('message-hub')

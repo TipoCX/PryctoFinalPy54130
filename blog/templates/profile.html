@@ -2,19 +2,41 @@
 {% block title %}Profile{% endblock %}
 {% block content %}
 {% load static %}
-
+<div class="profile-container">
 {% if user == profile %}
 {% if avatar %}
-   <a href='{% url "add-avatar" %}' class="imgAvatar"><img width='100' height='100' src="{{ avatar.image.url }}"></a>
+   <a href='{% url "add-avatar" %}' class="imgAvatar"><img width='300' height='300' src="{{ avatar.image.url }}"><span class="tooltiptext">Edit Profile</span></a>
 {% else %}
-   <a href='{% url "add-avatar" %}' class="imgAvatar"><img width='100' src="{% static 'images/avatar-placeholder.jpg' %}"></a>
+   <a href='{% url "add-avatar" %}' class="imgAvatar"><img width='300' src="{% static 'images/avatar-placeholder.jpg' %}"><span class="tooltiptext">Edit Profile</span></a>
 {% endif %}
 {% else %}
 {% if avatar %}
-    <div class="imgAvatar"><img width='100' height='100' src="{{ avatar.image.url }}"></div>
+    <div class="imgAvatar"><img width='300' height='300' src="{{ avatar.image.url }}"></div>
 {% else %}
-    <div class="imgAvatar"><img width='100' src="{% static 'images/avatar-placeholder.jpg' %}"></div>
+    <div class="imgAvatar"><img width='300' src="{% static 'images/avatar-placeholder.jpg' %}"></div>
 {% endif %}
 {% endif %}
+<br>
+<h2>{{ profile.username|capfirst }}</h2>
+<br>
+{% if posts %}
+<div class='index-container'>
+<div class="posts-container">
+{% for post in posts %}
+<a class="card post" href='{% url "post" postid=post.id %}'>
+    <p>{{ post.author }}</p>
+    <h2>{{post.titulo}}</h2>
+    <h4>{{post.subtitulo}}</h4>
+    <p>{% for letter in post.contenido%}{% if  forloop.counter0  <= 300 %}{{letter}}{% else %}{% if  forloop.counter0 == 300 or  forloop.counter0  == 301 or  forloop.counter0 == 302 %}.{% endif %}{% endif %}{% endfor %}</p>
+</a>
+{% endfor %}
+</div>
+</div>
+{% else %}
+
+<h2>No se a encontrado Ningun post
+</h2>
+{% endif %}
+</div>
 
 {% endblock content %}

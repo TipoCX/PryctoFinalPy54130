@@ -30,8 +30,13 @@
             <a class="nav-link" href="{% url "create-post" %}">Create Post</a>
             </li>
             <li class="nav-item">
+            <a class="nav-link" href="{% url "message-hub" %}">Messages</a>
+            </li>
+
+            <li class="nav-item">
             <a class="nav-link" href="{% url "profile-view" pageUserId=user.id %}">{{ user.username }}</a>
             </li>
+
             <li class="nav-item">
             <a class="nav-link" href="{% url "logout" %}">Logout</a>
             </li>
