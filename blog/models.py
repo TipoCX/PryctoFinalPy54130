@@ -33,7 +33,7 @@ class Message(models.Model):
 
 class Avatar(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    image = models.ImageField()
+    image = models.ImageField(upload_to='avatars/', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg', 'webp'])])
 
 class ImageQueue(models.Model):
     post = models.OneToOneField(Post, on_delete=models.CASCADE)

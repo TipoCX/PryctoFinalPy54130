@@ -36,10 +36,10 @@ function Navbar() {
       transform: showNavbar ? 'translateY(0)' : 'translateY(-150%)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <div style={{ background: 'var(--color-primary)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <span style={{ fontWeight: 'bold' }}>C</span>
+        <div style={{ background: 'var(--color-primary)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#111827' }}>
+          <span style={{ fontWeight: 'bold' }}>G</span>
         </div>
-        <h2 style={{ margin: 0, fontFamily: 'Outfit' }}>Clon</h2>
+        <h2 style={{ margin: 0, fontFamily: 'Outfit' }}>Gensen</h2>
       </div>
       <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-base)' }}>

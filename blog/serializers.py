@@ -44,6 +44,13 @@ class AvatarSerializer(serializers.ModelSerializer):
         model = Avatar
         fields = ['id', 'user', 'image']
 
+    def validate_image(self, value):
+        if value:
+            # Limite 5MB de tamaño por avatar
+            if value.size > 5 * 1024 * 1024:
+                raise ValidationError("La imagen del avatar no puede exceder los 5MB")
+        return value
+
 class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     likes_count = serializers.SerializerMethodField()
