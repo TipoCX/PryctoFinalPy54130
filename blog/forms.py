@@ -10,10 +10,9 @@ class SearchForm(forms.Form):
 class CreatePostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['titulo', 'subtitulo', 'contenido']
+        fields = ['titulo', 'contenido']
         labels = {
             'titulo': 'Titulo Del Post',
-            'subtitulo': 'Subtitulo Del Post',
             'contenido': 'Contenido Del Post'
         }
 
