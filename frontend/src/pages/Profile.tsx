@@ -1,0 +1,152 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
+import type { User, Post } from '../types';
+import PostCard from '../components/PostCard';
+import { MessageCircle, LogOut } from 'lucide-react';
+
+export default function Profile() {
+  const { userid } = useParams();
+  const navigate = useNavigate();
+  
+  const [user, setUser] = useState<User | null>(null);
+  const [me, setMe] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [activeTab, setActiveTab] = useState<'posts' | 'likes'>('posts');
+
+  useEffect(() => {
+    fetchMe();
+    fetchUser();
+  }, [userid]);
+
+  useEffect(() => {
+    if (user) {
+      fetchPosts();
+    }
+  }, [user, activeTab]);
+
+  const fetchMe = async () => {
+    try {
+      const res = await api.get('users/me/');
+      setMe(res.data);
+    } catch {}
+  };
+
+  const fetchUser = async () => {
+    try {
+      let targetId = userid;
+      if (userid === 'me') {
+         const resMe = await api.get('users/me/');
+         targetId = resMe.data.id;
+      }
+      const res = await api.get(`users/${targetId}/`);
+      setUser(res.data);
+    } catch {
+      alert("Usuario no encontrado.");
+      navigate('/');
+    }
+  };
+
+  const fetchPosts = async () => {
+    if (!user) return;
+    try {
+      const param = activeTab === 'posts' ? `author=${user.id}` : `liked_by=${user.id}`;
+      const res = await api.get(`posts/?${param}`);
+      setPosts(res.data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleLike = async (postId: number) => {
+    try {
+      const res = await api.post(`posts/${postId}/like/`);
+      setPosts(currentPosts => currentPosts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post, 
+            has_liked: res.data.liked,
+            likes_count: res.data.likes_count
+          };
+        }
+        return post;
+      }));
+    } catch {
+      alert("Debes iniciar sesión para dar MG.");
+    }
+  };
+
+  if (!user) return <div style={{ textAlign: 'center', padding: '4rem' }}>Cargando perfil...</div>;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '600px', margin: '0 auto' }}>
+      {/* Cabecera de Perfil */}
+      <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+         {user.avatar_url ? (
+            <img src={user.avatar_url} alt="Avatar" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem' }} />
+         ) : (
+            <div style={{ width: '100px', height: '100px', background: 'var(--color-primary)', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold', color: '#111827', fontSize: '2.5rem', marginBottom: '1rem' }}>
+               {user.username[0].toUpperCase()}
+            </div>
+         )}
+         
+         <h2 style={{ margin: '0 0 0.5rem 0' }}>{user.username}</h2>
+         <p style={{ margin: '0', color: 'var(--color-text-muted)' }}>Unido en: {new Date(user.date_joined || '').toLocaleDateString()}</p>
+         <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem', color: 'var(--color-text-base)', fontWeight: 'bold' }}>
+            <span>{user.post_count} Posts Totales</span>
+         </div>
+
+         {/* Botón Chat SI no soy yo */}
+         {me && me.id !== user.id && (
+            <button 
+               onClick={() => navigate(`/messages/${user.id}`)}
+               style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+               <MessageCircle size={18} />
+               <span>Chatear</span>
+            </button>
+         )}
+
+         {/* Botón Logout SI soy yo */}
+         {me && me.id === user.id && (
+            <button 
+               onClick={() => { localStorage.removeItem('access_token'); window.location.href='/login' }}
+               style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-danger-bg)', border: '1px solid var(--color-danger-border)', color: 'var(--color-danger-text)' }}
+               title="Cerrar Sesión"
+            >
+               <LogOut size={18} />
+               <span>Cerrar Sesión</span>
+            </button>
+         )}
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+         <button 
+           onClick={() => setActiveTab('posts')}
+           style={{ background: 'transparent', border: 'none', color: activeTab === 'posts' ? 'var(--color-primary)' : 'var(--color-text-muted)', fontWeight: activeTab === 'posts' ? 'bold' : 'normal', padding: '0.5rem 1rem', cursor: 'pointer' }}
+         >
+           Posts
+         </button>
+         <button 
+           onClick={() => setActiveTab('likes')}
+           style={{ background: 'transparent', border: 'none', color: activeTab === 'likes' ? 'var(--color-primary)' : 'var(--color-text-muted)', fontWeight: activeTab === 'likes' ? 'bold' : 'normal', padding: '0.5rem 1rem', cursor: 'pointer' }}
+         >
+           Me Gustas
+         </button>
+      </div>
+
+      {/* Posts List */}
+      <div>
+         {posts.map(post => (
+            <PostCard key={post.id} post={post} onLikeToggle={toggleLike} />
+         ))}
+         {posts.length === 0 && (
+            <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', marginTop: '2rem' }}>
+               No hay nada para mostrar aquí aún.
+            </div>
+         )}
+      </div>
+    </div>
+  );
+}

@@ -1,13 +1,28 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from .models import Post, Message, Avatar
 
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ['id', 'username', 'email', 'date_joined', 'post_count', 'avatar_url']
+
+    def get_post_count(self, obj):
+        return obj.author.count()
+        
+    def get_avatar_url(self, obj):
+        if hasattr(obj, 'avatar') and obj.avatar.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.avatar.image.url)
+            return obj.avatar.image.url
+        return None
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -36,7 +51,14 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'titulo', 'contenido', 'time', 'author', 'likes_count', 'has_liked']
+        fields = ['id', 'titulo', 'contenido', 'time', 'author', 'likes_count', 'has_liked', 'imagen', 'imagen_borrada']
+
+    def validate_imagen(self, value):
+        if value:
+            # Limite 5MB
+            if value.size > 5 * 1024 * 1024:
+                raise ValidationError("La imagen no puede exceder los 5MB")
+        return value
 
     def get_likes_count(self, obj):
         return obj.likes.count()

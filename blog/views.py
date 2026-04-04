@@ -45,9 +45,20 @@ class AvatarViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('-time')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = Post.objects.all().order_by('-time')
+        author_id = self.request.query_params.get('author', None)
+        liked_by = self.request.query_params.get('liked_by', None)
+        
+        if author_id is not None:
+            queryset = queryset.filter(author__id=author_id)
+        if liked_by is not None:
+            queryset = queryset.filter(likes__id=liked_by)
+            
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
