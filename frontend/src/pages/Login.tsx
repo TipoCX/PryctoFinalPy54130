@@ -13,7 +13,7 @@ export default function Login() {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       alert('Login exitoso!');
-      window.location.href = '/';
+      window.location.href = '/Social-Network-Generic-Portfolio/';
     } catch (err) {
       alert('Credenciales incorrectas');
     }
@@ -23,13 +23,13 @@ export default function Login() {
     <div className="glass-panel" style={{ maxWidth: '400px', margin: '4rem auto', padding: '2rem' }}>
       <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Iniciar Sesión</h2>
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <input 
-          placeholder="Usuario" 
+        <input
+          placeholder="Usuario"
           value={username} onChange={e => setUsername(e.target.value)}
           style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--color-border)', width: '100%', fontFamily: 'Inter' }}
         />
-        <input 
-          type="password" 
+        <input
+          type="password"
           placeholder="Contraseña"
           value={password} onChange={e => setPassword(e.target.value)}
           style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--color-border)', width: '100%', fontFamily: 'Inter' }}

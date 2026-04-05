@@ -192,7 +192,7 @@ export default function Profile() {
             onClick={() => {
               localStorage.removeItem('access_token');
               window.dispatchEvent(new Event('authChange'));
-              window.location.href = '/login';
+              window.location.href = '/Social-Network-Generic-Portfolio/login';
             }}
             style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-danger-bg)', border: '1px solid var(--color-danger-border)', color: 'var(--color-danger-text)' }}
             title="Cerrar Sesión"
