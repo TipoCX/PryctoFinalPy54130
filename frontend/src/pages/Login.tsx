@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,7 +15,8 @@ export default function Login() {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       alert('Login exitoso!');
-      window.location.href = '/Social-Network-Generic-Portfolio/';
+      navigate('/');
+      window.dispatchEvent(new Event('authChange'));
     } catch (err) {
       alert('Credenciales incorrectas');
     }
