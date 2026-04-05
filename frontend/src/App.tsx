@@ -89,7 +89,7 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router basename="/Social-Network-Generic-Portfolio">
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
