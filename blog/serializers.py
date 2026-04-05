@@ -43,6 +43,7 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatar
         fields = ['id', 'user', 'image']
+        read_only_fields = ['user']
 
     def validate_image(self, value):
         if value:

@@ -70,7 +70,10 @@ function Navbar() {
              </Link>
         )}
         
-        <button style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', borderRadius: '50%', background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text-base)' }} onClick={() => document.documentElement.classList.toggle('dark-mode')} title="Alternar Tema">
+        <button style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', borderRadius: '50%', background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text-base)' }} onClick={() => {
+          document.documentElement.classList.toggle('dark-mode');
+          localStorage.setItem('theme', document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light');
+        }} title="Alternar Tema">
           <Moon size={20} />
         </button>
       </div>
@@ -79,6 +82,12 @@ function Navbar() {
 }
 
 function App() {
+  useEffect(() => {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+  }, []);
+
   return (
     <Router>
       <Navbar />
