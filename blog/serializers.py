@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from .models import Post, Message, Avatar
+from .models import Post, Message, Avatar, Conversation
 
 User = get_user_model()
 
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'date_joined', 'post_count', 'avatar_url']
 
     def get_post_count(self, obj):
-        return obj.author.count()
+        return obj.posts.count()
         
     def get_avatar_url(self, obj):
         if hasattr(obj, 'avatar') and obj.avatar.image:
@@ -68,21 +68,37 @@ class PostSerializer(serializers.ModelSerializer):
         return value
 
     def get_likes_count(self, obj):
-        return obj.likes.count()
+        return getattr(obj, 'likes_count_annotated', obj.likes.count())
 
     def get_has_liked(self, obj):
+        if hasattr(obj, 'has_liked_annotated'):
+            return obj.has_liked_annotated
+            
         request = self.context.get('request', None)
         if request and request.user.is_authenticated:
             return obj.likes.filter(id=request.user.id).exists()
         return False
 
+class ConversationSerializer(serializers.ModelSerializer):
+    participants = UserSerializer(many=True, read_only=True)
+    last_message = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Conversation
+        fields = ['id', 'participants', 'updated_at', 'last_message']
+
+    def get_last_message(self, obj):
+        last = obj.messages.order_by('-time').first()
+        if last:
+            return {'sender_id': last.sender_id, 'content': last.content, 'time': last.time}
+        return None
+
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
-    reciver = UserSerializer(read_only=True)
-    reciver_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source='reciver', write_only=True
+    conversation_id = serializers.PrimaryKeyRelatedField(
+        queryset=Conversation.objects.all(), source='conversation', write_only=True
     )
 
     class Meta:
         model = Message
-        fields = ['id', 'sender', 'reciver', 'reciver_id', 'time', 'content']
+        fields = ['id', 'conversation_id', 'sender', 'time', 'content']

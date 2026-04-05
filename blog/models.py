@@ -5,11 +5,12 @@ from django.core.validators import FileExtensionValidator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import Sum
+
 class Post(models.Model):
     titulo = models.CharField(max_length=100, blank=False, null=False)
     contenido = models.TextField(max_length=2000, blank=False, null=False)
-    time = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='author')
+    time = models.DateTimeField(default=timezone.now, db_index=True)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='posts')
     likes = models.ManyToManyField(get_user_model(), related_name='likes')
     
     imagen = models.ImageField(
@@ -23,13 +24,22 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.titulo}'
 
+
+class Conversation(models.Model):
+    participants = models.ManyToManyField(get_user_model(), related_name='conversations')
+    updated_at = models.DateTimeField(auto_now=True)
+
 class Message(models.Model):
-    sender = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='sender')
-    reciver = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='reciver')
-    time = models.DateTimeField(default=timezone.now)
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='sent_messages')
+    time = models.DateTimeField(default=timezone.now, db_index=True)
     content = models.CharField(max_length=500, blank=False, null=False)
 
-
+    class Meta:
+        ordering = ['time']
+        indexes = [
+            models.Index(fields=['conversation', 'time']),
+        ]
 
 class Avatar(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)

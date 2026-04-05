@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import type { User, Post } from '../types';
+import type { User, Post, PaginatedResponse } from '../types';
 import PostCard from '../components/PostCard';
 import { MessageCircle, LogOut, Camera, Trash } from 'lucide-react';
 
@@ -13,6 +13,10 @@ export default function Profile() {
   const [me, setMe] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [activeTab, setActiveTab] = useState<'posts' | 'likes'>('posts');
+  
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchMe();
@@ -20,10 +24,29 @@ export default function Profile() {
   }, [userid]);
 
   useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    setPosts([]);
+  }, [activeTab, user?.id]);
+
+  useEffect(() => {
     if (user) {
-      fetchPosts();
+      fetchPosts(page);
     }
-  }, [user, activeTab]);
+  }, [user, page, activeTab]);
+
+  const handleScroll = useCallback(() => {
+    if (window.innerHeight + window.scrollY >= document.documentElement.offsetHeight - 150) {
+      if (!loading && hasMore) {
+        setPage(p => p + 1);
+      }
+    }
+  }, [loading, hasMore]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const fetchMe = async () => {
     try {
@@ -47,14 +70,22 @@ export default function Profile() {
     }
   };
 
-  const fetchPosts = async () => {
-    if (!user) return;
+  const fetchPosts = async (pageNumber: number) => {
+    if (!user || loading) return;
+    setLoading(true);
     try {
       const param = activeTab === 'posts' ? `author=${user.id}` : `liked_by=${user.id}`;
-      const res = await api.get(`posts/?${param}`);
-      setPosts(res.data);
+      const res = await api.get<PaginatedResponse<Post>>(`posts/?${param}&page=${pageNumber}`);
+      if (pageNumber === 1) {
+         setPosts(res.data.results);
+      } else {
+         setPosts(prev => [...prev, ...res.data.results]);
+      }
+      setHasMore(res.data.next !== null);
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,7 +171,14 @@ export default function Profile() {
          {/* Botón Chat SI no soy yo */}
          {me && me.id !== user.id && (
             <button 
-               onClick={() => navigate(`/messages/${user.id}`)}
+               onClick={async () => {
+                   try {
+                       const res = await api.post('conversations/', { participants: [user.id] });
+                       navigate(`/messages/${res.data.id}`);
+                   } catch {
+                       alert("Error al iniciar conversación.");
+                   }
+               }}
                style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
             >
                <MessageCircle size={18} />
@@ -151,7 +189,11 @@ export default function Profile() {
          {/* Botón Logout SI soy yo */}
          {me && me.id === user.id && (
             <button 
-               onClick={() => { localStorage.removeItem('access_token'); window.location.href='/login' }}
+               onClick={() => { 
+                  localStorage.removeItem('access_token'); 
+                  window.dispatchEvent(new Event('authChange'));
+                  window.location.href='/login';
+               }}
                style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-danger-bg)', border: '1px solid var(--color-danger-border)', color: 'var(--color-danger-text)' }}
                title="Cerrar Sesión"
             >
@@ -182,7 +224,20 @@ export default function Profile() {
          {posts.map(post => (
             <PostCard key={post.id} post={post} onLikeToggle={toggleLike} />
          ))}
-         {posts.length === 0 && (
+         
+         {loading && (
+            <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-primary)' }}>
+               Cargando el historial...
+            </div>
+         )}
+         
+         {!hasMore && posts.length > 0 && (
+            <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-text-muted)' }}>
+               No hay más publicaciones para mostrar en esta sección.
+            </div>
+         )}
+         
+         {posts.length === 0 && !loading && (
             <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', marginTop: '2rem' }}>
                No hay nada para mostrar aquí aún.
             </div>

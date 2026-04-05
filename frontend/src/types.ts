@@ -19,10 +19,28 @@ export interface Post {
   imagen_borrada?: boolean;
 }
 
+export interface Conversation {
+  id: number;
+  participants: User[];
+  updated_at: string;
+  last_message?: {
+    sender_id: number;
+    content: string;
+    time: string;
+  };
+}
+
 export interface Message {
   id: number;
+  conversation_id: number;
   sender: User;
-  reciver: User;
   time: string;
   content: string;
+}
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }

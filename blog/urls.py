@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
 )
 from .views import (
     RegisterView, UserViewSet, AvatarViewSet, 
-    PostViewSet, MessageViewSet
+    PostViewSet, MessageViewSet, ConversationViewSet
 )
 
 router = DefaultRouter()
@@ -14,6 +14,7 @@ router.register(r'users', UserViewSet, basename='user')
 router.register(r'avatars', AvatarViewSet, basename='avatar')
 router.register(r'posts', PostViewSet, basename='post')
 router.register(r'messages', MessageViewSet, basename='message')
+router.register(r'conversations', ConversationViewSet, basename='conversation')
 
 urlpatterns = [
     path('', include(router.urls)),

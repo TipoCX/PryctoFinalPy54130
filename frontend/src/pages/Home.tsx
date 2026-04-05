@@ -1,43 +1,91 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../lib/api';
 import { Image as ImageIcon } from 'lucide-react';
-import type { User, Post } from '../types';
+import type { User, Post, PaginatedResponse } from '../types';
 import PostCard from '../components/PostCard';
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [me, setMe] = useState<User | null>(null);
   
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   const [titulo, setTitulo] = useState('');
   const [contenido, setContenido] = useState('');
   const [imagen, setImagen] = useState<File | null>(null);
 
   useEffect(() => {
     fetchMe();
-    fetchPosts();
   }, []);
+
+  useEffect(() => {
+    fetchPosts(page);
+  }, [page]);
+
+  const handleScroll = useCallback(() => {
+    if (window.innerHeight + window.scrollY >= document.documentElement.offsetHeight - 150) {
+      if (!loading && hasMore) {
+        setPage(p => p + 1);
+      }
+    }
+  }, [loading, hasMore]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const fetchMe = async () => {
     try {
       const res = await api.get('users/me/');
       setMe(res.data);
     } catch (e) {
-      // User not logged in, token missing or invalid
+      // Not logged in
     }
   };
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (pageNumber: number) => {
+    if (loading) return;
+    setLoading(true);
     try {
-      const res = await api.get('posts/');
-      setPosts(res.data);
+      const res = await api.get<PaginatedResponse<Post>>(`posts/?page=${pageNumber}`);
+      if (pageNumber === 1) {
+         setPosts(res.data.results);
+      } else {
+         setPosts(prev => [...prev, ...res.data.results]);
+      }
+      setHasMore(res.data.next !== null);
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ensureGuestAccount = async () => {
+    if (me || localStorage.getItem('access_token')) return true;
+    try {
+      const rnd = Math.floor(Math.random() * 1000000);
+      const username = `Invitado_${rnd}`;
+      const password = `pass_${rnd}`;
+      await api.post('register/', { username, email: `${username}@invitado.com`, password });
+      const tokenRes = await api.post('token/', { username, password });
+      localStorage.setItem('access_token', tokenRes.data.access);
+      window.dispatchEvent(new Event('authChange'));
+      await fetchMe();
+      return true;
+    } catch {
+      return false;
     }
   };
 
   const handlePublish = async () => {
     if (!titulo || !contenido) return;
     try {
+      await ensureGuestAccount();
+
       const formData = new FormData();
       formData.append('titulo', titulo);
       formData.append('contenido', contenido);
@@ -51,7 +99,11 @@ export default function Home() {
       setTitulo('');
       setContenido('');
       setImagen(null);
-      fetchPosts(); // Reload feed
+      
+      // Reiniciar el feed al publicar
+      setPage(1);
+      setHasMore(true);
+      fetchPosts(1);
     } catch (e: any) {
       alert("Error al publicar. " + (e.response?.data?.imagen?.[0] || 'Verifica tu inicio de sesión.'));
     }
@@ -59,6 +111,8 @@ export default function Home() {
 
   const toggleLike = async (postId: number) => {
     try {
+      await ensureGuestAccount();
+      
       const res = await api.post(`posts/${postId}/like/`);
       setPosts(currentPosts => currentPosts.map(post => {
         if (post.id === postId) {
@@ -76,7 +130,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '600px', margin: '0 auto', paddingBottom: '4rem' }}>
       <div className="glass-panel" style={{ padding: '1.5rem' }}>
         <h3 style={{ marginBottom: '1rem' }}>¿Qué está pasando?</h3>
         <input 
@@ -102,11 +156,11 @@ export default function Home() {
               Escribiendo como <strong>{me.username}</strong>
             </span>
           ) : (
-            <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
-              Inicia sesión para publicar
+            <span style={{ color: 'var(--color-primary)', fontSize: '0.875rem' }}>
+              Se creará una cuenta de invitado
             </span>
           )}
-          <button onClick={handlePublish} disabled={!me}>Publicar</button>
+          <button onClick={handlePublish}>Publicar</button>
         </div>
       </div>
 
@@ -114,7 +168,19 @@ export default function Home() {
         <PostCard key={post.id} post={post} onLikeToggle={toggleLike} />
       ))}
       
-      {posts.length === 0 && (
+      {loading && (
+         <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-primary)' }}>
+            Cargando el historial...
+         </div>
+      )}
+      
+      {!hasMore && posts.length > 0 && (
+         <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--color-text-muted)' }}>
+            No hay más publicaciones para mostrar.
+         </div>
+      )}
+
+      {posts.length === 0 && !loading && (
          <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', marginTop: '2rem' }}>
             Aún no hay posts publicados. ¡Sé el primero en aportar!
          </div>

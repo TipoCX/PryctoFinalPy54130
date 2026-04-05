@@ -9,9 +9,15 @@ import Messages from './pages/Messages';
 import './index.css';
 
 function Navbar() {
-  const isAuth = !!localStorage.getItem('access_token');
+  const [isAuth, setIsAuth] = useState(!!localStorage.getItem('access_token'));
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const checkAuth = () => setIsAuth(!!localStorage.getItem('access_token'));
+    window.addEventListener('authChange', checkAuth);
+    return () => window.removeEventListener('authChange', checkAuth);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,7 +88,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile/:userid" element={<Profile />} />
         <Route path="/messages" element={<Messages />} />
-        <Route path="/messages/:contactId" element={<Messages />} />
+        <Route path="/messages/:conversationId" element={<Messages />} />
       </Routes>
     </Router>
   );
