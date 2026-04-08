@@ -153,3 +153,14 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+# Permitir que Django confíe en el encabezado X-Forwarded-Proto enviado por Nginx
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Indicar los orígenes confiables para CSRF
+CSRF_TRUSTED_ORIGINS = ['https://gensen.hostcx.com.ar']
+
+# Opcional: Forzar a que las cookies solo viajen por HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True

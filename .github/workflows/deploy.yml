@@ -40,7 +40,7 @@ jobs:
         working-directory: ./frontend
         run: npm run build
         env:
-          VITE_API_URL: https://social-network-generic-portfolio.onrender.com/api/
+          VITE_API_URL: https://gensen.hostcx.com.ar/api/
         
       - name: Upload dist to Server
         uses: actions/upload-pages-artifact@v3
