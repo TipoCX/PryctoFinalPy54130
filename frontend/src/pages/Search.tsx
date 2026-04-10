@@ -44,8 +44,8 @@ export default function Search() {
         api.get<PaginatedResponse<Post>>(`posts/?search=${encodeURIComponent(q)}`),
         api.get<PaginatedResponse<User>>(`users/?search=${encodeURIComponent(q)}`)
       ]);
-      setPosts(postRes.data.results);
-      setUsers(userRes.data.results);
+      setPosts(postRes.data.results ?? postRes.data ?? []);
+      setUsers(userRes.data.results ?? userRes.data ?? []);
     } catch (e) {
       console.error(e);
     } finally {

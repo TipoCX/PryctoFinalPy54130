@@ -75,7 +75,10 @@ function Navbar() {
           api.get<PaginatedResponse<Post>>(`posts/?search=${encodeURIComponent(value)}&page_size=5`),
           api.get<PaginatedResponse<UserType>>(`users/?search=${encodeURIComponent(value)}&page_size=5`)
         ]);
-        setSearchResults({ posts: postRes.data.results, users: userRes.data.results });
+        setSearchResults({
+          posts: postRes.data.results ?? postRes.data ?? [],
+          users: userRes.data.results ?? userRes.data ?? []
+        });
         setShowDropdown(true);
       } catch {
         // silent

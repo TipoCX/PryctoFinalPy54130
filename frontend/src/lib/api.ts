@@ -16,7 +16,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('access_token');
+      // Solo borrar el token si el request que falló realmente lo envió.
+      // Esto evita borrar un token recién creado durante el flujo de guest account.
+      const sentAuth = error.config?.headers?.Authorization;
+      if (sentAuth) {
+        localStorage.removeItem('access_token');
+      }
     }
     return Promise.reject(error);
   }

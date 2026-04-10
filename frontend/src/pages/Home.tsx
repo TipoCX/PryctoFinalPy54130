@@ -74,9 +74,15 @@ export default function Home() {
       const password = `pass_${rnd}`;
       await api.post('register/', { username, email: `${username}@invitado.com`, password });
       const tokenRes = await api.post('token/', { username, password });
-      localStorage.setItem('access_token', tokenRes.data.access);
+      const accessToken = tokenRes.data.access;
+      localStorage.setItem('access_token', accessToken);
       window.dispatchEvent(new Event('authChange'));
       await fetchMe();
+      // Re-asegurar el token en localStorage en caso de que fetchMe haya disparado
+      // el interceptor de 401 y lo haya borrado
+      if (!localStorage.getItem('access_token')) {
+        localStorage.setItem('access_token', accessToken);
+      }
       return true;
     } catch {
       return false;
