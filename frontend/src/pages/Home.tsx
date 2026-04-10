@@ -86,7 +86,11 @@ export default function Home() {
   const handlePublish = async () => {
     if (!titulo || !contenido) return;
     try {
-      await ensureGuestAccount();
+      const guestOk = await ensureGuestAccount();
+      if (!guestOk) {
+        showToast('No se pudo crear la cuenta de invitado. Intenta de nuevo.', 'error');
+        return;
+      }
 
       const formData = new FormData();
       formData.append('titulo', titulo);
@@ -95,8 +99,12 @@ export default function Home() {
         formData.append('imagen', imagen);
       }
 
+      // NO setear Content-Type manualmente: axios lo genera con el boundary correcto al detectar FormData
+      const token = localStorage.getItem('access_token');
       await api.post('posts/', formData, {
-         headers: { 'Content-Type': 'multipart/form-data' }
+         headers: {
+           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+         }
       });
       setTitulo('');
       setContenido('');
@@ -128,6 +136,26 @@ export default function Home() {
       }));
     } catch (e) {
       showToast('Error al dar like. ¿Aún no iniciaste sesión?', 'error');
+    }
+  };
+
+  const handleDeletePost = async (postId: number) => {
+    try {
+      await api.delete(`posts/${postId}/`);
+      setPosts(prev => prev.filter(p => p.id !== postId));
+      showToast('Post eliminado.', 'success');
+    } catch {
+      showToast('Error al borrar el post.', 'error');
+    }
+  };
+
+  const handleEditPost = async (postId: number, titulo: string, contenido: string) => {
+    try {
+      const res = await api.patch(`posts/${postId}/`, { titulo, contenido });
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, titulo: res.data.titulo, contenido: res.data.contenido } : p));
+      showToast('Post actualizado.', 'success');
+    } catch {
+      showToast('Error al editar el post.', 'error');
     }
   };
 
@@ -167,7 +195,7 @@ export default function Home() {
       </div>
 
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} onLikeToggle={toggleLike} />
+        <PostCard key={post.id} post={post} currentUserId={me?.id} onLikeToggle={toggleLike} onDelete={handleDeletePost} onEdit={handleEditPost} />
       ))}
       
       {loading && (

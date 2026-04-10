@@ -17,6 +17,16 @@ export interface Post {
   has_liked: boolean;
   imagen?: string;
   imagen_borrada?: boolean;
+  comments_count: number;
+}
+
+export interface Comment {
+  id: number;
+  author: User;
+  content: string;
+  time: string;
+  likes_count: number;
+  has_liked: boolean;
 }
 
 export interface Conversation {

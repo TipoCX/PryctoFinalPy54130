@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from .models import Post, Message, Avatar, Conversation
+from .models import Post, Comment, Message, Avatar, Conversation
 
 User = get_user_model()
 
@@ -56,10 +56,12 @@ class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     likes_count = serializers.SerializerMethodField()
     has_liked = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'titulo', 'contenido', 'time', 'author', 'likes_count', 'has_liked', 'imagen', 'imagen_borrada']
+        fields = ['id', 'titulo', 'contenido', 'time', 'author', 'likes_count', 'has_liked', 'imagen', 'imagen_borrada', 'comments_count']
+        read_only_fields = ['imagen_borrada']
 
     def validate_imagen(self, value):
         if value:
@@ -75,6 +77,31 @@ class PostSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'has_liked_annotated'):
             return obj.has_liked_annotated
             
+        request = self.context.get('request', None)
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()
+        return False
+
+    def get_comments_count(self, obj):
+        return getattr(obj, 'comments_count_annotated', obj.comments.count())
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    has_liked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'post', 'author', 'content', 'time', 'likes_count', 'has_liked']
+        read_only_fields = ['author']
+        extra_kwargs = {'post': {'write_only': True}}
+
+    def get_likes_count(self, obj):
+        return getattr(obj, 'likes_count_annotated', obj.likes.count())
+
+    def get_has_liked(self, obj):
+        if hasattr(obj, 'has_liked_annotated'):
+            return obj.has_liked_annotated
         request = self.context.get('request', None)
         if request and request.user.is_authenticated:
             return obj.likes.filter(id=request.user.id).exists()

@@ -25,6 +25,23 @@ class Post(models.Model):
         return f'{self.titulo}'
 
 
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField(max_length=500, blank=False, null=False)
+    time = models.DateTimeField(default=timezone.now, db_index=True)
+    likes = models.ManyToManyField(get_user_model(), related_name='comment_likes', blank=True)
+
+    class Meta:
+        ordering = ['time']
+        indexes = [
+            models.Index(fields=['post', 'time']),
+        ]
+
+    def __str__(self):
+        return f'Comment by {self.author} on {self.post}'
+
 class Conversation(models.Model):
     participants = models.ManyToManyField(get_user_model(), related_name='conversations')
     updated_at = models.DateTimeField(auto_now=True)

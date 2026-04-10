@@ -91,6 +91,26 @@ export default function Profile() {
     }
   };
 
+  const handleDeletePost = async (postId: number) => {
+    try {
+      await api.delete(`posts/${postId}/`);
+      setPosts(prev => prev.filter(p => p.id !== postId));
+      showToast('Post eliminado.', 'success');
+    } catch {
+      showToast('Error al borrar el post.', 'error');
+    }
+  };
+
+  const handleEditPost = async (postId: number, titulo: string, contenido: string) => {
+    try {
+      const res = await api.patch(`posts/${postId}/`, { titulo, contenido });
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, titulo: res.data.titulo, contenido: res.data.contenido } : p));
+      showToast('Post actualizado.', 'success');
+    } catch {
+      showToast('Error al editar el post.', 'error');
+    }
+  };
+
   const toggleLike = async (postId: number) => {
     try {
       const res = await api.post(`posts/${postId}/like/`);
@@ -224,7 +244,7 @@ export default function Profile() {
       {/* Posts List */}
       <div>
         {posts.map(post => (
-          <PostCard key={post.id} post={post} onLikeToggle={toggleLike} />
+          <PostCard key={post.id} post={post} currentUserId={me?.id} onLikeToggle={toggleLike} onDelete={handleDeletePost} onEdit={handleEditPost} />
         ))}
 
         {loading && (

@@ -6,13 +6,26 @@ from django.contrib.auth import get_user_model
 from django.db.models import Count, OuterRef, Exists
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
-from .models import Post, Message, Avatar, Conversation
+from .models import Post, Comment, Message, Avatar, Conversation
 from .serializers import (
     UserSerializer, UserCreateSerializer, PostSerializer, 
-    MessageSerializer, AvatarSerializer, ConversationSerializer
+    CommentSerializer, MessageSerializer, AvatarSerializer, ConversationSerializer
 )
 
 User = get_user_model()
+
+
+# --- Permissions ---
+
+class IsAuthorOrReadOnly(permissions.BasePermission):
+    """Solo permite editar/borrar al autor del objeto."""
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.author == request.user
+
+
+# --- Views ---
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -27,12 +40,19 @@ class RegisterView(APIView):
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(username__icontains=search)
+        return queryset
 
 class AvatarViewSet(viewsets.ModelViewSet):
     queryset = Avatar.objects.all()
@@ -53,12 +73,13 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         queryset = Post.objects.select_related('author').annotate(
-            likes_count_annotated=Count('likes', distinct=True)
+            likes_count_annotated=Count('likes', distinct=True),
+            comments_count_annotated=Count('comments', distinct=True)
         ).order_by('-time')
         
         if self.request.user.is_authenticated:
@@ -67,11 +88,16 @@ class PostViewSet(viewsets.ModelViewSet):
 
         author_id = self.request.query_params.get('author', None)
         liked_by = self.request.query_params.get('liked_by', None)
+        search = self.request.query_params.get('search', None)
         
         if author_id is not None:
             queryset = queryset.filter(author__id=author_id)
         if liked_by is not None:
             queryset = queryset.filter(likes__id=liked_by)
+        if search:
+            queryset = queryset.filter(
+                Q(titulo__icontains=search) | Q(contenido__icontains=search)
+            )
             
         return queryset
 
@@ -92,6 +118,47 @@ class PostViewSet(viewsets.ModelViewSet):
             'status': 'like toggled',
             'liked': liked,
             'likes_count': post.likes.count()
+        })
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        queryset = Comment.objects.select_related('author').annotate(
+            likes_count_annotated=Count('likes', distinct=True)
+        ).order_by('-time')
+
+        if self.request.user.is_authenticated:
+            user_likes = Comment.likes.through.objects.filter(
+                comment_id=OuterRef('pk'), user_id=self.request.user.id
+            )
+            queryset = queryset.annotate(has_liked_annotated=Exists(user_likes))
+
+        post_id = self.request.query_params.get('post', None)
+        if post_id is not None:
+            queryset = queryset.filter(post__id=post_id)
+
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def like(self, request, pk=None):
+        comment = self.get_object()
+        user = request.user
+        if user in comment.likes.all():
+            comment.likes.remove(user)
+            liked = False
+        else:
+            comment.likes.add(user)
+            liked = True
+        return Response({
+            'status': 'like toggled',
+            'liked': liked,
+            'likes_count': comment.likes.count()
         })
 
 class ConversationViewSet(viewsets.ModelViewSet):
