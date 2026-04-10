@@ -36,7 +36,7 @@ function Navbar() {
   }, [lastScrollY]);
 
   return (
-    <nav className="glass-panel" style={{ 
+    <nav className="glass-panel" style={{
       display: 'flex', justifyContent: 'space-between', padding: '1rem 2rem', marginBottom: '2rem', alignItems: 'center',
       position: 'sticky', top: '1rem', zIndex: 50,
       transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -54,23 +54,23 @@ function Navbar() {
           <span>Inicio</span>
         </Link>
         {isAuth ? (
-           <>
-             <Link to="/messages" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-base)' }}>
-               <MessageCircle size={20} />
-               <span>Mensajes</span>
-             </Link>
-             <Link to="/profile/me" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-base)' }}>
-               <User size={20} />
-               <span>Perfil</span>
-             </Link>
-           </>
+          <>
+            <Link to="/messages" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-base)' }}>
+              <MessageCircle size={20} />
+              <span>Mensajes</span>
+            </Link>
+            <Link to="/profile/me" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-base)' }}>
+              <User size={20} />
+              <span>Perfil</span>
+            </Link>
+          </>
         ) : (
-             <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)', fontWeight: 'bold' }}>
-               <User size={20} />
-               <span>Iniciar Sesión</span>
-             </Link>
+          <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)', fontWeight: 'bold' }}>
+            <User size={20} />
+            <span>Iniciar Sesión</span>
+          </Link>
         )}
-        
+
         <button style={{ display: 'flex', alignItems: 'center', padding: '0.5rem', borderRadius: '50%', background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text-base)' }} onClick={() => {
           document.documentElement.classList.toggle('dark-mode');
           localStorage.setItem('theme', document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light');
@@ -91,7 +91,7 @@ function App() {
 
   return (
     <ToastProvider>
-      <Router basename="/Social-Network-Generic-Portfolio">
+      <Router basename="/Gensen-RS">
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
