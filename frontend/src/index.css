@@ -117,7 +117,7 @@ button:active {
 }
 
 .solid-panel {
-  background: white;
+  background: var(--color-bg-surface);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
