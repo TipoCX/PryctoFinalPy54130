@@ -97,7 +97,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="glass-panel" style={{
+    <nav className="solid-panel" style={{
       display: 'flex', justifyContent: 'space-between', padding: '0.75rem 1.5rem', marginBottom: '2rem', alignItems: 'center',
       position: 'sticky', top: '1rem', zIndex: 50,
       transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
