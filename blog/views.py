@@ -27,6 +27,11 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
 
 # --- Views ---
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -67,10 +72,7 @@ class AvatarViewSet(viewsets.ModelViewSet):
         Avatar.objects.filter(user=self.request.user).delete()
         serializer.save(user=self.request.user)
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 20
-    page_size_query_param = 'page_size'
-    max_page_size = 100
+
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
