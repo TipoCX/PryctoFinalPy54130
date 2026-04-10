@@ -3,10 +3,12 @@ import { api } from '../lib/api';
 import { Image as ImageIcon } from 'lucide-react';
 import type { User, Post, PaginatedResponse } from '../types';
 import PostCard from '../components/PostCard';
+import { useToast } from '../components/Toast';
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [me, setMe] = useState<User | null>(null);
+  const { showToast } = useToast();
   
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -105,7 +107,7 @@ export default function Home() {
       setHasMore(true);
       fetchPosts(1);
     } catch (e: any) {
-      alert("Error al publicar. " + (e.response?.data?.imagen?.[0] || 'Verifica tu inicio de sesión.'));
+      showToast('Error al publicar. ' + (e.response?.data?.imagen?.[0] || 'Verifica tu inicio de sesión.'), 'error');
     }
   };
 
@@ -125,7 +127,7 @@ export default function Home() {
         return post;
       }));
     } catch (e) {
-      alert("Error al dar like. ¿Aún no iniciaste sesión?");
+      showToast('Error al dar like. ¿Aún no iniciaste sesión?', 'error');
     }
   };
 

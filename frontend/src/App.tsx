@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
+import { ToastProvider } from './components/Toast';
 import './index.css';
 
 function Navbar() {
@@ -89,17 +90,19 @@ function App() {
   }, []);
 
   return (
-    <Router basename="/Social-Network-Generic-Portfolio">
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile/:userid" element={<Profile />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/messages/:conversationId" element={<Messages />} />
-      </Routes>
-    </Router>
+    <ToastProvider>
+      <Router basename="/Social-Network-Generic-Portfolio">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile/:userid" element={<Profile />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/messages/:conversationId" element={<Messages />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
 

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { User, Message, Conversation } from '../types';
 import { Send } from 'lucide-react';
+import { useToast } from '../components/Toast';
 
 export default function Messages() {
   const { conversationId } = useParams();
@@ -13,6 +14,7 @@ export default function Messages() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const activeConversationId = parseInt(conversationId || '0');
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchMe();
@@ -64,7 +66,7 @@ export default function Messages() {
        fetchMessages();
        fetchConversations();
     } catch (e) {
-       alert("Error enviando mensaje");
+       showToast('Error enviando mensaje', 'error');
     }
   };
 

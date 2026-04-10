@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { api } from '../lib/api';
 import { useNavigate, Link } from 'react-router-dom';
+import { useToast } from '../components/Toast';
 
 export default function Register() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await api.post('register/', { username, email, password });
-      alert('Registro exitoso! Ahora puedes iniciar sesión.');
+      showToast('¡Registro exitoso! Ahora puedes iniciar sesión.', 'success');
       navigate('/login');
     } catch (err) {
-      alert('Error en el registro. Quizas el usuario ya existe.');
+      showToast('Error en el registro. Quizás el usuario ya existe.', 'error');
     }
   };
 

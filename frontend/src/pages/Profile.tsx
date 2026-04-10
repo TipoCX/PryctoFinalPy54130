@@ -4,10 +4,12 @@ import { api } from '../lib/api';
 import type { User, Post, PaginatedResponse } from '../types';
 import PostCard from '../components/PostCard';
 import { MessageCircle, LogOut, Camera, Trash } from 'lucide-react';
+import { useToast } from '../components/Toast';
 
 export default function Profile() {
   const { userid } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [user, setUser] = useState<User | null>(null);
   const [me, setMe] = useState<User | null>(null);
@@ -65,7 +67,7 @@ export default function Profile() {
       const res = await api.get(`users/${targetId}/`);
       setUser(res.data);
     } catch {
-      alert("Usuario no encontrado.");
+      showToast('Usuario no encontrado.', 'error');
       navigate('/');
     }
   };
@@ -103,7 +105,7 @@ export default function Profile() {
         return post;
       }));
     } catch {
-      alert("Debes iniciar sesión para dar MG.");
+      showToast('Debes iniciar sesión para dar MG.', 'warning');
     }
   };
 
@@ -116,7 +118,7 @@ export default function Profile() {
       await api.post('avatars/', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       fetchUser(); // Reload profile visually
     } catch (err) {
-      alert("Error subiendo el avatar.");
+      showToast('Error subiendo el avatar.', 'error');
     }
   };
 
@@ -128,7 +130,7 @@ export default function Profile() {
         fetchUser(); // Reload profile
       }
     } catch (err) {
-      alert("Error borrando el avatar");
+      showToast('Error borrando el avatar.', 'error');
     }
   };
 
@@ -176,7 +178,7 @@ export default function Profile() {
                 const res = await api.post('conversations/', { participants: [user.id] });
                 navigate(`/messages/${res.data.id}`);
               } catch {
-                alert("Error al iniciar conversación.");
+                showToast('Error al iniciar la conversación.', 'error');
               }
             }}
             style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
