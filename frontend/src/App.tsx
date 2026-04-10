@@ -139,7 +139,7 @@ function Navbar() {
 
         {/* Dropdown */}
         {showDropdown && (
-          <div className="glass-panel" style={{
+          <div className="solid-panel" style={{
             position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '0.5rem',
             maxHeight: '360px', overflowY: 'auto', zIndex: 100,
             boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
